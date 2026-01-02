@@ -1,0 +1,157 @@
+﻿@page "/carrinho"
+@using Loja3D.Models
+@using Loja3D.Services
+@using Loja3D.Data
+@using Microsoft.AspNetCore.Components.Authorization 
+@inject CarrinhoService GestorCarrinho
+@inject LojaContext Contexto
+@inject NavigationManager Navegador
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthProvider 
+@implements IDisposable
+
+<PageTitle>Seu Carrinho</PageTitle>
+
+<div class="container mt-4">
+    <h2>🛒 Finalizar Pedido</h2>
+
+    @if (!GestorCarrinho.ObterItens().Any())
+    {
+        <div class="alert alert-info mt-4">
+            <p>Seu carrinho está vazio.</p>
+            <a href="/" class="btn btn-primary">Voltar para a Loja</a>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Produto</th>
+                                <th>Qtd</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in GestorCarrinho.ObterItens())
+                            {
+                                <tr>
+                                    <td>@item.Produto.Nome</td>
+                                    <td>@item.Quantidade</td>
+                                    <td>R$ @item.Subtotal.ToString("N2")</td>
+                                    <td>
+                                        <button class="btn btn-danger btn-sm" @onclick="() => Remover(item)">X</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Resumo da Conta</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="fw-bold">Total a Pagar:</span>
+                            <span class="fw-bold text-success fs-4">
+                                R$ @GestorCarrinho.ObterItens().Sum(i => i.Subtotal).ToString("N2")
+                            </span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label>Nome do Cliente:</label>
+                            <input type="text" class="form-control" @bind="nomeCliente" placeholder="Digite seu nome..." />
+                            
+                            @if (usuarioLogado)
+                            {
+                                <small class="text-success">
+                                    <i class="bi bi-check-circle-fill"></i> Identificado pelo Google
+                                </small>
+                            }
+                        </div>
+
+                        <button class="btn btn-success w-100" @onclick="ProcessarPedido">
+                            ✅ Confirmar Compra
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private string nomeCliente = "";
+    private bool usuarioLogado = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Inscreve para atualizações do carrinho
+        GestorCarrinho.OnChange += StateHasChanged;
+
+        // 2. Verifica se o usuário já entrou com Google
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            // Se estiver logado, PEGA O NOME AUTOMATICAMENTE!
+            nomeCliente = user.Identity.Name ?? "";
+            usuarioLogado = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        GestorCarrinho.OnChange -= StateHasChanged;
+    }
+
+    private void Remover(CarrinhoItem item)
+    {
+        GestorCarrinho.Remover(item.Produto);
+    }
+
+    private async Task ProcessarPedido()
+    {
+        if (string.IsNullOrWhiteSpace(nomeCliente))
+        {
+            await JS.InvokeVoidAsync("alert", "Por favor, preencha seu nome.");
+            return;
+        }
+
+        var novoPedido = new Pedido
+        {
+            NomeCliente = nomeCliente,
+            DataPedido = DateTime.Now,
+            ValorTotal = GestorCarrinho.ObterItens().Sum(i => i.Subtotal)
+        };
+
+        foreach (var itemDoCarrinho in GestorCarrinho.ObterItens())
+        {
+            var itemBanco = new ItemPedido
+            {
+                Produto = itemDoCarrinho.Produto,
+                Quantidade = itemDoCarrinho.Quantidade,
+                PrecoUnitario = itemDoCarrinho.Produto.Preco,
+                Pedido = novoPedido
+            };
+            novoPedido.Itens.Add(itemBanco);
+            itemDoCarrinho.Produto.Estoque -= itemDoCarrinho.Quantidade;
+        }
+
+        Contexto.Pedidos.Add(novoPedido);
+        await Contexto.SaveChangesAsync();
+
+        GestorCarrinho.Esvaziar();
+        await JS.InvokeVoidAsync("alert", $"Pedido #{novoPedido.Id} confirmado para {nomeCliente}!");
+        Navegador.NavigateTo("/");
+    }
+}

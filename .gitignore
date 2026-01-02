@@ -1,0 +1,16 @@
+# Pastas de Build e Cache do Visual Studio (Lixo)
+bin/
+obj/
+.vs/
+*.user
+
+# Pastas de Cache e Extensões (O que causou o erro)
+.vscode/
+.limpc/
+.crossnote/
+.bash_history
+.node_repl_history
+.viminfo
+
+# Segredos (Já protegemos, mas garante)
+secrets.json

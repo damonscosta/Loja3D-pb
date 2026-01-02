@@ -1,0 +1,107 @@
+﻿@page "/admin/editar/{Id:int}"
+@using Loja3D.Models
+@using Loja3D.Data
+@using Microsoft.EntityFrameworkCore
+@inject LojaContext Contexto
+@inject NavigationManager Navegador
+@inject IWebHostEnvironment Ambiente
+
+<PageTitle>Editar Produto</PageTitle>
+
+<div class="container mt-4">
+    <h2>✏️ Editar Produto</h2>
+
+    @if (produto is null) {
+        <p><em>Carregando dados...</em></p>
+    }
+    else {
+        <EditForm Model="produto" OnValidSubmit="AtualizarProduto">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label>Nome do Produto:</label>
+                <InputText @bind-Value="produto.Nome" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>Descrição:</label>
+                <InputTextArea @bind-Value="produto.Descricao" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>Preço (R$):</label>
+                <InputNumber @bind-Value="produto.Preco" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>Categoria:</label>
+                <InputText @bind-Value="produto.Categoria" class="form-control" placeholder="Ex: Miniaturas, Vasos, Geek..." />
+            </div>
+
+            <div class="mb-3">
+                <label>Estoque Atual:</label>
+                <InputNumber @bind-Value="produto.Estoque" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label>Foto do Produto:</label>
+                @if (!string.IsNullOrEmpty(produto.ImagemUrl)) {
+                    <div class="mb-2">
+                        <img src="@produto.ImagemUrl" style="width: 100px; border-radius: 5px;" />
+                    </div>
+                }
+                <InputFile OnChange="SubirArquivo" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">💾 Salvar Alterações</button>
+            <a href="/admin/painel" class="btn btn-secondary">Cancelar</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Produto? produto;
+
+    protected override async Task OnInitializedAsync() {
+        // Busca o produto no banco pelo ID da URL
+        produto = await Contexto.Produtos.FindAsync(Id);
+    }
+
+    private async Task SubirArquivo(InputFileChangeEventArgs e) {
+        try {
+            var arquivo = e.File;
+            // Cria um nome único para não substituir fotos de outros produtos
+            var nomeArquivo = $"{Guid.NewGuid()}_{arquivo.Name}";
+            var pastaDestino = Path.Combine(Ambiente.WebRootPath, "imagens");
+
+            // Cria a pasta se não existir
+            if (!Directory.Exists(pastaDestino)) Directory.CreateDirectory(pastaDestino);
+
+            var caminhoCompleto = Path.Combine(pastaDestino, nomeArquivo);
+
+            // Salva o arquivo na pasta
+            await using var stream = arquivo.OpenReadStream(maxAllowedSize: 1024 * 1024 * 5); // Max 5MB
+            await using var fs = new FileStream(caminhoCompleto, FileMode.Create);
+            await stream.CopyToAsync(fs);
+
+            // Atualiza o link da foto APENAS se o produto ainda existir na memória
+            if (produto is not null) {
+                produto.ImagemUrl = $"/imagens/{nomeArquivo}";
+            }
+        }
+        catch (Exception ex) {
+            Console.WriteLine($"Erro no upload: {ex.Message}");
+        }
+    }
+
+    private async Task AtualizarProduto() {
+        if (produto is not null) {
+            Contexto.Produtos.Update(produto);
+            await Contexto.SaveChangesAsync();
+            Navegador.NavigateTo("/admin/painel");
+        }
+    }
+}

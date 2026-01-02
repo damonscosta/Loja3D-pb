@@ -1,0 +1,90 @@
+﻿@page "/meus-pedidos"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using Loja3D.Models
+@using Loja3D.Data
+@using System.Security.Claims
+@attribute [Authorize]  
+@inject LojaContext Contexto
+@inject AuthenticationStateProvider AuthProvider
+
+<PageTitle>Meus Pedidos</PageTitle>
+
+<div class="container mt-4">
+    <h2>📦 Meus Pedidos</h2>
+    <p class="text-muted">Acompanhe seu histórico de compras.</p>
+
+    @if (pedidos is null)
+    {
+        <p><em>Carregando...</em></p>
+    }
+    else if (!pedidos.Any())
+    {
+        <div class="alert alert-warning">
+            Você ainda não fez nenhuma compra conosco. <a href="/">Bora comprar?</a>
+        </div>
+    }
+    else
+    {
+        <div class="accordion" id="accordionPedidos">
+            @foreach (var pedido in pedidos)
+            {
+                <div class="accordion-item mb-3 border shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#pedido-@pedido.Id">
+                            <div class="d-flex justify-content-between w-100 me-3">
+                                <span><strong>Pedido #@pedido.Id</strong> - @pedido.DataPedido.ToString("dd/MM/yyyy HH:mm")</span>
+                                <span class="text-success fw-bold">R$ @pedido.ValorTotal.ToString("N2")</span>
+                            </div>
+                        </button>
+                    </h2>
+                    <div id="pedido-@pedido.Id" class="accordion-collapse collapse" data-bs-parent="#accordionPedidos">
+                        <div class="accordion-body">
+                            <h5>Itens do Pedido:</h5>
+                            <ul class="list-group">
+                                @foreach (var item in pedido.Itens)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center">
+                                            @if(!string.IsNullOrEmpty(item.Produto?.ImagemUrl))
+                                            {
+                                                 <img src="@item.Produto.ImagemUrl" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px; border-radius: 4px;" />
+                                            }
+                                            <span>@item.Quantidade x <strong>@(item.Produto?.Nome ?? "Produto Indisponível")</strong></span>
+                                        </div>
+                                        <span>R$ @item.PrecoUnitario.ToString("N2")</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Pedido>? pedidos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Descobre quem é o usuário logado
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var usuario = authState.User;
+
+        if (usuario.Identity is not null && usuario.Identity.IsAuthenticated)
+        {
+            var nomeCliente = usuario.Identity.Name;
+
+            // 2. Busca no banco SÓ os pedidos desse nome
+            // O .Include é vital: Traz o Pedido + Os Itens + Os Produtos dentro dos itens
+            pedidos = await Contexto.Pedidos
+                .Include(p => p.Itens)
+                .ThenInclude(i => i.Produto)
+                .Where(p => p.NomeCliente == nomeCliente)
+                .OrderByDescending(p => p.DataPedido) // Mais recentes primeiro
+                .ToListAsync();
+        }
+    }
+}

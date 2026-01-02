@@ -1,0 +1,82 @@
+﻿@page "/produto/{Id:int}"
+@using Loja3D.Models
+@using Loja3D.Data
+@using Loja3D.Services
+@using Microsoft.EntityFrameworkCore
+@inject LojaContext Contexto
+@inject CarrinhoService Carrinho
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+<PageTitle>@titulo</PageTitle>
+
+<div class="container mt-4">
+    <a href="/" class="btn btn-outline-secondary mb-4">
+        <i class="bi bi-arrow-left"></i> Voltar para a Loja
+    </a>
+
+    @if (produto is null) {
+        <p><em>Carregando detalhes...</em></p>
+    }
+    else {
+        <div class="row">
+            <div class="col-md-6 text-center">
+                <img src="@(string.IsNullOrEmpty(produto.ImagemUrl) ? "https://via.placeholder.com/500?text=Sem+Foto" : produto.ImagemUrl)"
+                     class="img-fluid rounded shadow-sm"
+                     style="max-height: 500px; object-fit: contain;" />
+            </div>
+
+            <div class="col-md-6">
+                <h1 class="display-5 fw-bold">@produto.Nome</h1>
+                <h3 class="text-primary my-3">R$ @produto.Preco.ToString("N2")</h3>
+
+                <p class="lead text-muted">@produto.Descricao</p>
+
+                <hr />
+
+                <div class="d-flex align-items-center mb-4">
+                    <span class="me-3 fw-bold">Estoque:</span>
+                    @if (produto.Estoque > 0) {
+                        <span class="badge bg-success">@produto.Estoque unidades disponíveis</span>
+                    }
+                    else {
+                        <span class="badge bg-danger">Esgotado</span>
+                    }
+                </div>
+
+                @if (produto.Estoque > 0) {
+                    <button class="btn btn-success btn-lg w-100 py-3" @onclick="AdicionarAoCarrinho">
+                        <i class="bi bi-cart-plus-fill"></i> Adicionar ao Carrinho
+                    </button>
+                }
+                else {
+                    <button class="btn btn-secondary btn-lg w-100 py-3" disabled>
+                        Produto Indisponível
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Produto? produto;
+    private string titulo = "Detalhes do Produto";
+
+    protected override async Task OnInitializedAsync() {
+        produto = await Contexto.Produtos.FindAsync(Id);
+        if (produto != null) {
+            titulo = produto.Nome;
+        }
+    }
+
+    private async Task AdicionarAoCarrinho() {
+        if (produto is not null) {
+            Carrinho.Adicionar(produto);
+            await JS.InvokeVoidAsync("alert", $"{produto.Nome} foi adicionado ao carrinho!");
+        }
+    }
+}

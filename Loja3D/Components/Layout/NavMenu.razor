@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Loja3D</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3 text-white mb-3 text-center">
+                    <img src="@context.User.Claims.FirstOrDefault(c => c.Type == "picture")?.Value"
+                         style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;" />
+                    <br />
+                    <small>Olá, @context.User.Identity?.Name</small>
+
+                    <div class="mt-2">
+                        <NavLink class="btn btn-sm btn-info w-100 text-white" href="meus-pedidos">
+                            📦 Meus Pedidos
+                        </NavLink>
+                    </div>
+
+                    <a href="Auth/logout" class="btn btn-sm btn-outline-light mt-2 w-100">Sair</a>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3 mb-3">
+                    <a href="Auth/login" class="btn btn-light w-100 fw-bold" style="color: #db4437;">
+                        <i class="bi bi-google"></i> Entrar com Google
+                    </a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Vitrine
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="carrinho">
+                <span class="bi bi-cart-fill-nav-menu" aria-hidden="true"></span> Carrinho
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 mt-4">
+            <span class="text-uppercase text-white-50 small fw-bold ms-3">Administração</span>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin/painel">
+                <span class="bi bi-box-seam-fill" aria-hidden="true"></span> Estoque
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin/vendas">
+                <span class="bi bi-currency-dollar" aria-hidden="true"></span> Vendas
+            </NavLink>
+        </div>
+
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu() {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

@@ -1,0 +1,43 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main class="d-flex flex-column min-vh-100">
+        <div class="top-row px-4 d-flex justify-content-end align-items-center flex-shrink-0">
+            <button class="btn btn-outline-secondary btn-sm me-3" @onclick="ToggleDarkMode">
+                @if (isDarkMode) {
+                    <span>☀️ Claro</span>
+                }
+                else {
+                    <span>🌙 Escuro</span>
+                }
+            </button>
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">Sobre</a>
+        </div>
+
+        <article class="content px-4 flex-grow-1">
+            @Body
+        </article>
+
+        <Rodape />
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    private bool isDarkMode = false;
+
+    private async Task ToggleDarkMode() {
+        isDarkMode = !isDarkMode;
+        await JS.InvokeVoidAsync("toggleDarkMode");
+    }
+}

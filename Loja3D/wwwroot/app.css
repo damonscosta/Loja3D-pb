@@ -1,0 +1,291 @@
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a, .btn-link {
+    color: #006bb7;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.content {
+    padding-top: 1.1rem;
+}
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid #e50000;
+}
+
+.validation-message {
+    color: #e50000;
+}
+
+.blazor-error-boundary {
+    background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTYiIGhlaWdodD0iNDkiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIG92ZXJmbG93PSJoaWRkZW4iPjxkZWZzPjxjbGlwUGF0aCBpZD0iY2xpcDAiPjxyZWN0IHg9IjIzNSIgeT0iNTEiIHdpZHRoPSI1NiIgaGVpZ2h0PSI0OSIvPjwvY2xpcFBhdGg+PC9kZWZzPjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMCkiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMzUgLTUxKSI+PHBhdGggZD0iTTI2My41MDYgNTFDMjY0LjcxNyA1MSAyNjUuODEzIDUxLjQ4MzcgMjY2LjYwNiA1Mi4yNjU4TDI2Ny4wNTIgNTIuNzk4NyAyNjcuNTM5IDUzLjYyODMgMjkwLjE4NSA5Mi4xODMxIDI5MC41NDUgOTIuNzk1IDI5MC42NTYgOTIuOTk2QzI5MC44NzcgOTMuNTEzIDI5MSA5NC4wODE1IDI5MSA5NC42NzgyIDI5MSA5Ny4wNjUxIDI4OS4wMzggOTkgMjg2LjYxNyA5OUwyNDAuMzgzIDk5QzIzNy45NjMgOTkgMjM2IDk3LjA2NTEgMjM2IDk0LjY3ODIgMjM2IDk0LjM3OTkgMjM2LjAzMSA5NC4wODg2IDIzNi4wODkgOTMuODA3MkwyMzYuMzM4IDkzLjAxNjIgMjM2Ljg1OCA5Mi4xMzE0IDI1OS40NzMgNTMuNjI5NCAyNTkuOTYxIDUyLjc5ODUgMjYwLjQwNyA1Mi4yNjU4QzI2MS4yIDUxLjQ4MzcgMjYyLjI5NiA1MSAyNjMuNTA2IDUxWk0yNjMuNTg2IDY2LjAxODNDMjYwLjczNyA2Ni4wMTgzIDI1OS4zMTMgNjcuMTI0NSAyNTkuMzEzIDY5LjMzNyAyNTkuMzEzIDY5LjYxMDIgMjU5LjMzMiA2OS44NjA4IDI1OS4zNzEgNzAuMDg4N0wyNjEuNzk1IDg0LjAxNjEgMjY1LjM4IDg0LjAxNjEgMjY3LjgyMSA2OS43NDc1QzI2Ny44NiA2OS43MzA5IDI2Ny44NzkgNjkuNTg3NyAyNjcuODc5IDY5LjMxNzkgMjY3Ljg3OSA2Ny4xMTgyIDI2Ni40NDggNjYuMDE4MyAyNjMuNTg2IDY2LjAxODNaTTI2My41NzYgODYuMDU0N0MyNjEuMDQ5IDg2LjA1NDcgMjU5Ljc4NiA4Ny4zMDA1IDI1OS43ODYgODkuNzkyMSAyNTkuNzg2IDkyLjI4MzcgMjYxLjA0OSA5My41Mjk1IDI2My41NzYgOTMuNTI5NSAyNjYuMTE2IDkzLjUyOTUgMjY3LjM4NyA5Mi4yODM3IDI2Ny4zODcgODkuNzkyMSAyNjcuMzg3IDg3LjMwMDUgMjY2LjExNiA4Ni4wNTQ3IDI2My41NzYgODYuMDU0N1oiIGZpbGw9IiNGRkU1MDAiIGZpbGwtcnVsZT0iZXZlbm9kZCIvPjwvZz48L3N2Zz4=) no-repeat 1rem/1.8rem, #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+}
+
+    .blazor-error-boundary::after {
+        content: "An error has occurred."
+    }
+
+/* =========================================
+   MODO ESCURO PROFISSIONAL (Dark Theme)
+   ========================================= */
+
+/* Transição suave em tudo */
+body, .card, .sidebar, .nav-scrollable, .form-control, .btn, .input-group-text, .card-footer {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+    /* 1. Corpo Geral */
+    body.dark-mode {
+        background-color: #121212 !important;
+        color: #e0e0e0 !important;
+    }
+
+        /* 2. Cards (Removendo o fundo branco forçado) */
+        body.dark-mode .card {
+            background-color: #1e1e1e !important;
+            border: 1px solid #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        /* 3. Rodapé do Card e Ícone da Lupa (Busca) 
+   Aqui usamos !important para vencer o 'bg-white' do Bootstrap */
+        body.dark-mode .card-footer,
+        body.dark-mode .input-group-text {
+            background-color: #2c2c2c !important;
+            color: #fff !important;
+            border-color: #444 !important;
+        }
+
+        /* 4. Títulos */
+        body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, body.dark-mode h4, body.dark-mode h5 {
+            color: #ffffff !important;
+        }
+
+        /* 5. Inputs de Texto */
+        body.dark-mode .form-control {
+            background-color: #2c2c2c !important;
+            border-color: #444 !important;
+            color: #fff !important;
+        }
+
+            body.dark-mode .form-control::placeholder {
+                color: #aaa;
+            }
+
+        /* 6. Links e Botões Outline */
+        body.dark-mode a {
+            color: #6ea8fe; /* Azul mais claro para ler melhor no escuro */
+        }
+
+        body.dark-mode .btn-outline-dark {
+            color: #e0e0e0;
+            border-color: #e0e0e0;
+        }
+
+            body.dark-mode .btn-outline-dark:hover {
+                background-color: #e0e0e0;
+                color: #000;
+            }
+
+        /* 7. Sidebar (Menu Lateral) */
+        body.dark-mode .sidebar {
+            background-image: linear-gradient(180deg, #050505 0%, #1a1a1a 70%) !important;
+        }
+
+        body.dark-mode .nav-item a {
+            color: #d7d7d7;
+        }
+
+            body.dark-mode .nav-item a:hover {
+                background-color: rgba(255,255,255,0.1);
+                color: #fff;
+            }
+
+        /* 8. Textos secundários */
+        body.dark-mode .text-muted {
+            color: #999 !important;
+        }
+
+        /* 9. Tabelas */
+        body.dark-mode .table {
+            color: #e0e0e0;
+            --bs-table-bg: transparent;
+            border-color: #333;
+        }
+
+        body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+            color: #e0e0e0;
+            background-color: rgba(255,255,255,0.05);
+        }
+
+
+        /* Força todo texto dentro do corpo do card a ficar claro */
+        body.dark-mode .card-body,
+        body.dark-mode .card-body label,
+        body.dark-mode .card-body span,
+        body.dark-mode .card-body div,
+        body.dark-mode .card-body strong {
+            color: #e0e0e0 !important;
+        }
+
+        /* Ajusta a cor do "Verde" (Preço e Botões) para brilhar mais no escuro */
+        body.dark-mode .text-success {
+            color: #4cd964 !important; /* Verde neon mais legível */
+        }
+
+        /* Garante que o input do nome continue legível */
+        body.dark-mode input.form-control {
+            color: #fff !important;
+            background-color: #2c2c2c !important;
+        }
+
+
+
+        /* Força a cor clara em TODAS as células da tabela (td e th) */
+        body.dark-mode .table td,
+        body.dark-mode .table th,
+        body.dark-mode .table tr {
+            color: #e0e0e0 !important;
+        }
+
+        /* Garante que o fundo das linhas continue com o efeito zebra suave */
+        body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+            color: #e0e0e0 !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        /* Remove qualquer fundo branco que possa ter sobrado nas linhas pares */
+        body.dark-mode .table-striped > tbody > tr:nth-of-type(even) > * {
+            color: #e0e0e0 !important;
+            background-color: transparent !important;
+        }
+
+/* =========================================
+   ESTILO DO RODAPÉ (FOOTER)
+   ========================================= */
+
+.site-footer {
+    background-color: #f8f9fa; /* Cinza bem claro (padrão light) */
+    border-top: 1px solid #e9ecef;
+}
+
+/* Efeito Hover nos links do rodapé */
+.hover-link:hover {
+    color: #0d6efd !important; /* Azul ao passar o mouse */
+    padding-left: 5px;
+    transition: all 0.2s ease;
+}
+
+/* --- MODO ESCURO DO RODAPÉ --- */
+body.dark-mode .site-footer {
+    background-color: #0f0f0f; /* Quase preto */
+    border-top: 1px solid #333;
+    color: #e0e0e0;
+}
+
+    /* Ícones e Textos no Dark Mode */
+    body.dark-mode .site-footer .text-secondary {
+        color: #a0a0a0 !important;
+    }
+
+    body.dark-mode .site-footer .text-muted {
+        color: #888 !important;
+    }
+
+/* =========================================
+   HERO SECTION (BANNER INICIAL)
+   ========================================= */
+
+.hero-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #4ecca3 100%);
+    color: white;
+    padding: 4rem 1rem; /* Espaçamento interno generoso */
+    border-radius: 0 0 50px 50px; /* Borda arredondada moderna embaixo */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+    /* Efeito de "Luz" no fundo (opcional, mas fica chique) */
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto 2rem auto; /* Centraliza o texto */
+}
+
+/* Ajuste da Barra de Pesquisa para ficar flutuando sobre o banner */
+.hero-search-box {
+    max-width: 600px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.15); /* Vidro fosco */
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.hero-search-input {
+    border: none;
+    background: transparent;
+    color: white !important;
+    padding-left: 20px;
+}
+
+    .hero-search-input::placeholder {
+        color: rgba(255,255,255,0.7) !important;
+    }
+
+    .hero-search-input:focus {
+        background: transparent;
+        box-shadow: none;
+    }
+
+/* Ajuste para telas pequenas (Celular) */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-section {
+        padding: 3rem 1rem;
+        border-radius: 0 0 30px 30px;
+    }
+}

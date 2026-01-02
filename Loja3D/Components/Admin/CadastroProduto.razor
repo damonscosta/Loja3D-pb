@@ -1,0 +1,112 @@
+﻿@page "/admin/novo"
+@using Loja3D.Models
+@using Loja3D.Data
+@using System.IO
+@inject LojaContext Contexto
+@inject NavigationManager Navegador
+@inject IWebHostEnvironment Ambiente
+
+<PageTitle>Novo Produto</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h3>📦 Cadastrar Novo Produto</h3>
+            </div>
+            <div class="card-body">
+                
+                <EditForm Model="@produto" OnValidSubmit="SalvarProduto">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label>Nome do Produto</label>
+                        <InputText @bind-Value="produto.Nome" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Descrição</label>
+                        <InputTextArea @bind-Value="produto.Descricao" class="form-control" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Preço (R$)</label>
+                            <InputNumber @bind-Value="produto.Preco" class="form-control" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Categoria:</label>
+                            <InputText @bind-Value="produto.Categoria" class="form-control" placeholder="Ex: Miniaturas, Vasos, Geek..." />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Estoque Inicial</label>
+                            <InputNumber @bind-Value="produto.Estoque" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Foto do Produto</label>
+                        <InputFile OnChange="SubirArquivo" class="form-control" accept=".jpg,.jpeg,.png" />
+                        
+                        @if (!string.IsNullOrEmpty(produto.ImagemUrl))
+                        {
+                            <div class="mt-2">
+                                <span class="text-success">✅ Imagem carregada com sucesso!</span>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">💾 Salvar Produto</button>
+
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Produto produto = new Produto();
+
+    // Método que roda assim que você escolhe o arquivo
+    private async Task SubirArquivo(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            // 1. Pega o arquivo enviado
+            var arquivo = e.File;
+
+            // 2. Gera um nome único (para não substituir fotos com mesmo nome)
+            // Ex: "foto.jpg" vira "b3d1-4a2c-foto.jpg"
+            var nomeArquivo = $"{Guid.NewGuid()}_{arquivo.Name}";
+
+            // 3. Define onde vai salvar (Pasta wwwroot/imagens)
+            var pastaDestino = Path.Combine(Ambiente.WebRootPath, "imagens");
+            
+            // Cria a pasta se ela não existir (segurança)
+            if (!Directory.Exists(pastaDestino)) Directory.CreateDirectory(pastaDestino);
+
+            var caminhoCompleto = Path.Combine(pastaDestino, nomeArquivo);
+
+            // 4. Salva o arquivo no disco
+            // Limite aumentado para 5MB (padrão é 512KB)
+            await using var stream = arquivo.OpenReadStream(maxAllowedSize: 1024 * 1024 * 5);
+            await using var fs = new FileStream(caminhoCompleto, FileMode.Create);
+            await stream.CopyToAsync(fs);
+
+            // 5. Salva o CAMINHO RELATIVO no produto (isso que vai pro banco)
+            produto.ImagemUrl = $"/imagens/{nomeArquivo}";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao subir arquivo: {ex.Message}");
+        }
+    }
+
+    private async Task SalvarProduto()
+    {
+        Contexto.Produtos.Add(produto);
+        await Contexto.SaveChangesAsync();
+        Navegador.NavigateTo("/");
+    }
+}

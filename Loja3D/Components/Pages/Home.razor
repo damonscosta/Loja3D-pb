@@ -1,0 +1,144 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@using Loja3D.Models
+@using Loja3D.Data
+@using Loja3D.Services
+@inject LojaContext Contexto
+@inject CarrinhoService Carrinho
+@inject IJSRuntime JS
+
+<PageTitle>Loja3D - Vitrine</PageTitle>
+
+<div class="container">
+    <div class="hero-section">
+        <div class="container position-relative z-1">
+            <h1 class="hero-title">Loja3D</h1>
+            <p class="hero-subtitle">
+                Transformando filamento em arte. Explore nossa coleção exclusiva de miniaturas, decorações e peças geek impressas com precisão.
+            </p>
+
+            <div class="hero-search-box d-flex align-items-center shadow-lg">
+                <span class="ps-3 text-white opacity-50">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text"
+                       class="form-control hero-search-input"
+                       placeholder="O que você procura hoje?"
+                       @bind="termoBusca"
+                       @oninput="AtualizarBusca" />
+            </div>
+
+            @if (categoriasDisponiveis.Any()) {
+                <div class="d-flex justify-content-center flex-wrap gap-2 mt-4">
+                    <button class="btn btn-sm rounded-pill @(categoriaSelecionada == "" ? "btn-light" : "btn-outline-light")"
+                            @onclick='() => FiltrarPorCategoria("")'>
+                        Todos
+                    </button>
+
+                    @foreach (var cat in categoriasDisponiveis) {
+                        <button class="btn btn-sm rounded-pill @(categoriaSelecionada == cat ? "btn-light" : "btn-outline-light")"
+                                @onclick="() => FiltrarPorCategoria(cat)">
+                            @cat
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (produtosVisiveis == null) {
+        <p class="text-center mt-5"><em>Carregando vitrine...</em></p>
+    }
+    else if (!produtosVisiveis.Any()) {
+        <div class="alert alert-warning text-center mt-4">
+            Nenhum produto encontrado.
+        </div>
+    }
+    else {
+        <div class="row mt-4">
+            @foreach (var produto in produtosVisiveis) {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-effect">
+                        <a href="produto/@produto.Id" style="text-decoration: none; color: inherit;">
+                            <div class="position-relative">
+                                <img src="@(string.IsNullOrEmpty(produto.ImagemUrl) ? "https://via.placeholder.com/300?text=Sem+Foto" : produto.ImagemUrl)"
+                                     class="card-img-top" alt="@produto.Nome" style="height: 200px; object-fit: contain;">
+                                <span class="position-absolute top-0 end-0 badge bg-primary m-2">@produto.Categoria</span>
+                            </div>
+
+                            <div class="card-body">
+                                <h5 class="card-title">@produto.Nome</h5>
+                                <p class="card-text text-muted small">
+                                    @(produto.Descricao.Length > 50 ? produto.Descricao.Substring(0, 47) + "..." : produto.Descricao)
+                                </p>
+                                <h4 class="text-primary">R$ @produto.Preco.ToString("N2")</h4>
+                            </div>
+                        </a>
+
+                        <div class="card-footer bg-white border-top-0">
+                            <button class="btn btn-success w-100" @onclick="() => AdicionarAoCarrinho(produto)">
+                                🛒 Comprar
+                            </button>
+                            <small class="text-muted d-block text-center mt-2">
+                                Estoque: @produto.Estoque un.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Produto> todosProdutos = new();
+    private List<Produto> produtosVisiveis = new();
+    private List<string> categoriasDisponiveis = new();
+
+    private string termoBusca = "";
+    private string categoriaSelecionada = "";
+
+    protected override async Task OnInitializedAsync() {
+        todosProdutos = await Contexto.Produtos.ToListAsync();
+
+        // Pega todas as categorias que existem no banco (sem repetir)
+        categoriasDisponiveis = todosProdutos
+            .Select(p => p.Categoria)
+            .Distinct()
+            .Where(c => !string.IsNullOrEmpty(c))
+            .ToList();
+
+        produtosVisiveis = todosProdutos;
+    }
+
+    private void AtualizarBusca(ChangeEventArgs e) {
+        termoBusca = e.Value?.ToString() ?? "";
+        AplicarFiltros();
+    }
+
+    private void FiltrarPorCategoria(string categoria) {
+        categoriaSelecionada = categoria;
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros() {
+        var query = todosProdutos.AsEnumerable();
+
+        // 1. Filtra por Texto (se tiver digitado algo)
+        if (!string.IsNullOrWhiteSpace(termoBusca)) {
+            query = query.Where(p => p.Nome.Contains(termoBusca, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // 2. Filtra por Categoria (se tiver clicado num botão)
+        if (!string.IsNullOrEmpty(categoriaSelecionada)) {
+            query = query.Where(p => p.Categoria == categoriaSelecionada);
+        }
+
+        produtosVisiveis = query.ToList();
+    }
+
+    private async Task AdicionarAoCarrinho(Produto produto) {
+        Carrinho.Adicionar(produto);
+        await JS.InvokeVoidAsync("alert", $"{produto.Nome} foi adicionado ao carrinho!");
+    }
+}
