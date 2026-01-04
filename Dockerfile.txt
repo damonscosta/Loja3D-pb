@@ -1,17 +1,17 @@
-ï»¿# EstÃ¡gio 1: Construir o app
+# Estágio 1: Construir o app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copia os arquivos do projeto e restaura as dependÃªncias
+# Copia os arquivos do projeto e restaura as dependências
 COPY ["Loja3D/Loja3D.csproj", "Loja3D/"]
 RUN dotnet restore "Loja3D/Loja3D.csproj"
 
-# Copia todo o resto e constrÃ³i
+# Copia todo o resto e constrói
 COPY . .
 WORKDIR "/src/Loja3D"
 RUN dotnet publish "Loja3D.csproj" -c Release -o /app/publish
 
-# EstÃ¡gio 2: Rodar o app (Imagem leve)
+# Estágio 2: Rodar o app (Imagem leve)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 EXPOSE 8080
