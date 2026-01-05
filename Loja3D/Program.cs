@@ -5,7 +5,17 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Configuração para o Render entender que está em HTTPS
+builder.Services.Configure<ForwardedHeadersOptions>(options => {
+    options.ForwardedHeaders =
+        Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
+        Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // 1. Configura a Interatividade (ESSENCIAL para o botão Comprar funcionar)
 builder.Services.AddRazorComponents()
@@ -40,6 +50,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<CarrinhoService>();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 // --- Configuração do Pipeline (A ordem importa!) ---
 
