@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Configuração para o Render entender que está em HTTPS
 builder.Services.Configure<ForwardedHeadersOptions>(options => {
     options.ForwardedHeaders =
